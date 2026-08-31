@@ -187,6 +187,12 @@ class AnalyticsBackend:
           "SELECT * FROM saved_predictions ORDER BY timestamp DESC", conn
       )
 
+  def get_booking_history(self):
+    with self._get_connection() as conn:
+      return pd.read_sql_query(
+          "SELECT * FROM movie_bookings ORDER BY timestamp DESC", conn
+      )
+
 
 backend = AnalyticsBackend()
 
@@ -196,14 +202,12 @@ backend = AnalyticsBackend()
 st.markdown(
     """
 <style>
-    /* Main Background & Base Text */
     .stApp {
         background-color: #FAF7F2;
         color: #1E150C;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     
-    /* ENHANCED SIDEBAR DESIGN */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #F5ECE0 0%, #EFE3D3 100%) !important;
         border-right: 1px solid #D8C8B8 !important;
@@ -212,7 +216,6 @@ st.markdown(
         color: #2D2115 !important;
     }
     
-    /* Sidebar Brand Card */
     .sidebar-brand-card {
         background: linear-gradient(135deg, #2D2115 0%, #4A3B2C 100%);
         padding: 20px;
@@ -235,7 +238,6 @@ st.markdown(
         margin-bottom: 0;
     }
     
-    /* User Profile Badge */
     .user-profile-badge {
         display: flex;
         align-items: center;
@@ -259,7 +261,6 @@ st.markdown(
         font-size: 0.85rem;
     }
 
-    /* LOGIN & COVER PAGE STYLES */
     .login-card {
         background-color: #FFFFFF;
         padding: 40px 45px;
@@ -291,7 +292,6 @@ st.markdown(
         margin-bottom: 4px !important;
     }
 
-    /* Cover Hero Banner */
     .hero-banner {
         background: linear-gradient(135deg, #2D2115 0%, #4A3B2C 50%, #8C5A3C 100%);
         padding: 36px 40px;
@@ -315,7 +315,6 @@ st.markdown(
         font-size: 1.1rem;
     }
 
-    /* Executive Image Cards & Cast Visuals */
     .image-card {
         background-color: #FFFFFF;
         border-radius: 14px;
@@ -351,7 +350,6 @@ st.markdown(
         color: #1E150C !important;
     }
 
-    /* CINEMA SCREEN & SEATING STYLES */
     .cinema-screen {
         background: linear-gradient(180deg, #8C5A3C 0%, rgba(140, 90, 60, 0.1) 100%);
         height: 18px;
@@ -366,7 +364,6 @@ st.markdown(
         box-shadow: 0px -4px 12px rgba(140, 90, 60, 0.4);
     }
     
-    /* Metrics */
     div[data-testid="stMetric"] {
         background-color: #FFFFFF;
         padding: 20px;
@@ -379,7 +376,6 @@ st.markdown(
         font-weight: 800;
     }
 
-    /* Buttons */
     .stButton>button {
         background-color: #8C5A3C !important;
         color: #FFFFFF !important;
@@ -393,7 +389,6 @@ st.markdown(
         background-color: #6F452C !important;
     }
     
-    /* Trailer Link Button Styling */
     .trailer-link-btn {
         display: inline-block;
         background-color: #FF0000;
@@ -462,11 +457,10 @@ if not st.session_state.authenticated:
 
 
 # -----------------------------------------------------------------------------
-# 5. DATA SYNTHESIS & BACKEND SEEDING PIPELINE (ENGLISH, HINDI, KANNADA MOVIES)
+# 5. DATA SYNTHESIS PIPELINE (ENGLISH, HINDI, KANNADA MOVIES)
 # -----------------------------------------------------------------------------
 @st.cache_data
 def load_or_generate_dataset(samples=1200):
-  # Realistic English, Hindi, and Kannada Movies with YouTube Trailers
   real_movies = [
       # Kannada Movies
       {
@@ -769,7 +763,7 @@ tab_book, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 ])
 
 # -----------------------------------------------------------------------------
-# TAB: BOOK MOVIE TICKETS (DARK PAYMENT + FAALURE SIMULATION + TRAILERS)
+# TAB: BOOK MOVIE TICKETS
 # -----------------------------------------------------------------------------
 with tab_book:
   st.subheader("🎟️ Book Movie Tickets - English, Hindi & Kannada Titles")
@@ -836,7 +830,6 @@ with tab_book:
 
   st.markdown("---")
 
-  # Show Selected Movie Visual Banner & Details with Youtube Trailer Link
   selected_movie_row = df[df["Title"] == movie_selected].iloc[0]
 
   b_col1, b_col2 = st.columns([1, 2])
@@ -869,13 +862,11 @@ with tab_book:
     st.markdown("### 💺 Interactive Seat Selection")
     st.write("Click on seats to add or remove them from your booking.")
 
-    # Screen Visual Representation
     st.markdown(
         '<div class="cinema-screen">SCREEN THIS WAY</div>',
         unsafe_allow_html=True,
     )
 
-    # Seat Configuration Setup
     pricing_tiers = {
         "Recliner VIP (Row A-B)": {"rows": ["A", "B"], "price": 600},
         "Prime Gold (Row C-E)": {"rows": ["C", "D", "E"], "price": 350},
@@ -885,7 +876,6 @@ with tab_book:
     if "selected_seats" not in st.session_state:
       st.session_state.selected_seats = []
 
-    # Seat Grid layout
     for category, info in pricing_tiers.items():
       st.markdown(f"**{category} - ₹{info['price']}**")
       for row in info["rows"]:
@@ -914,7 +904,6 @@ with tab_book:
                   st.session_state.selected_seats.append(seat_id)
                 st.rerun()
 
-    # DARKENED PAYMENT SECTION & FAILURE SIMULATION
     st.markdown("---")
     st.subheader("💳 Booking & Payment Summary")
 
@@ -930,7 +919,6 @@ with tab_book:
 
     col_pay1, col_pay2 = st.columns(2)
     with col_pay1:
-      # Dark styled payment text output block
       st.markdown(
           f"""
             <div class="payment-summary-box">
@@ -961,7 +949,6 @@ with tab_book:
             ],
         )
 
-        # Payment Simulator (Toggle Success/Fail)
         simulate_failure = st.checkbox(
             "⚠️ Simulate Payment Failure (Testing Feature)"
         )
@@ -1057,7 +1044,7 @@ with tab1:
     )
 
 # -----------------------------------------------------------------------------
-# TAB 2: SEARCH & CAST VISUALS (WITH DIRECT YOUTUBE TRAILER LINK)
+# TAB 2: SEARCH & CAST VISUALS
 # -----------------------------------------------------------------------------
 with tab2:
   st.subheader("🔍 Movie Search & Cast Visual Card")
@@ -1131,3 +1118,200 @@ with tab2:
       st.metric("TMDB Popularity", f"🔥 {movie_data['TMDB_Popularity']}")
   else:
     st.warning("No movies found matching the search criteria.")
+
+# -----------------------------------------------------------------------------
+# TAB 3: GENRE ANALYTICS
+# -----------------------------------------------------------------------------
+with tab3:
+  st.subheader("📊 Genre Performance & Volume Analysis")
+
+  df_expanded = df.assign(
+      Genre_List=df["Genres"].str.split(", ")
+  ).explode("Genre_List")
+  genre_summary = (
+      df_expanded.groupby("Genre_List")
+      .agg(
+          Average_IMDb=("IMDb_Score", "mean"),
+          Average_Popularity=("TMDB_Popularity", "mean"),
+          Total_Titles=("Title", "count"),
+      )
+      .reset_index()
+  )
+
+  c1, c2 = st.columns(2)
+  with c1:
+    fig_g1 = px.bar(
+        genre_summary.sort_values(by="Average_IMDb", ascending=True),
+        x="Average_IMDb",
+        y="Genre_List",
+        orientation="h",
+        title="Average IMDb Rating by Genre",
+        color="Average_IMDb",
+        color_continuous_scale="copper",
+    )
+    fig_g1.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
+    )
+    st.plotly_chart(fig_g1, use_container_width=True)
+
+  with c2:
+    fig_g2 = px.pie(
+        genre_summary,
+        names="Genre_List",
+        values="Total_Titles",
+        title="Genre Share in Catalog",
+        color_discrete_sequence=px.colors.sequential.Darkmint,
+    )
+    fig_g2.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
+    )
+    st.plotly_chart(fig_g2, use_container_width=True)
+
+# -----------------------------------------------------------------------------
+# TAB 4: RUNTIME WINDOW
+# -----------------------------------------------------------------------------
+with tab4:
+  st.subheader("⏱️ Runtime Distribution vs User Engagement")
+
+  fig_rt = px.scatter(
+      df,
+      x="Runtime_Min",
+      y="IMDb_Score",
+      color="Content_Type",
+      size="TMDB_Popularity",
+      hover_data=["Title", "Genres"],
+      title="Runtime (Minutes) vs IMDb Score",
+      color_discrete_sequence=["#8C5A3C", "#2D2115"],
+  )
+  fig_rt.update_layout(
+      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
+  )
+  st.plotly_chart(fig_rt, use_container_width=True)
+
+# -----------------------------------------------------------------------------
+# TAB 5: RELEASE TIMING
+# -----------------------------------------------------------------------------
+with tab5:
+  st.subheader("📅 Seasonal Launch & Release Month Analysis")
+
+  month_order = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+  ]
+  monthly_data = (
+      df.groupby("Release_Month")
+      .agg(
+          Avg_Popularity=("TMDB_Popularity", "mean"),
+          Avg_IMDb=("IMDb_Score", "mean"),
+      )
+      .reindex(month_order)
+      .reset_index()
+  )
+
+  fig_rel = px.line(
+      monthly_data,
+      x="Release_Month",
+      y="Avg_Popularity",
+      markers=True,
+      title="Popularity Trajectory Across Release Months",
+      line_shape="spline",
+      color_discrete_sequence=["#8C5A3C"],
+  )
+  fig_rel.update_layout(
+      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
+  )
+  st.plotly_chart(fig_rel, use_container_width=True)
+
+# -----------------------------------------------------------------------------
+# TAB 6: ML PREDICTOR ENGINE
+# -----------------------------------------------------------------------------
+with tab6:
+  st.subheader("🔮 Predictive Intelligence Engine")
+  st.markdown(
+      "Simulate film metrics and predict IMDb rating & TMDB popularity."
+  )
+
+  col_m1, col_m2 = st.columns(2)
+  with col_m1:
+    selected_genres_input = st.multiselect(
+        "Select Genres:", options=list(genre_list), default=[genre_list[0]]
+    )
+    runtime_input = st.slider("Runtime (Minutes):", 60, 210, 135)
+
+  with col_m2:
+    season_input = st.selectbox(
+        "Release Season:", ["Winter", "Spring", "Summer", "Fall"]
+    )
+    type_input = st.selectbox("Content Source:", ["Original", "Licensed"])
+
+  if st.button("✨ Execute AI Forecast", use_container_width=True):
+    if not selected_genres_input:
+      st.warning("Please select at least one genre.")
+    else:
+      input_dict = {col: 0 for col in feature_columns}
+      input_dict["Runtime_Min"] = runtime_input
+
+      for g in selected_genres_input:
+        if g in input_dict:
+          input_dict[g] = 1
+
+      season_col = f"Season_{season_input}"
+      if season_col in input_dict:
+        input_dict[season_col] = 1
+
+      type_col = f"Content_Type_{type_input}"
+      if type_col in input_dict:
+        input_dict[type_col] = 1
+
+      input_df = pd.DataFrame([input_dict])
+
+      pred_rating = rf_rating.predict(input_df)[0]
+      pred_pop = rf_pop.predict(input_df)[0]
+
+      backend.log_prediction(
+          selected_genres_input,
+          runtime_input,
+          season_input,
+          type_input,
+          round(pred_rating, 2),
+          round(pred_pop, 2),
+      )
+
+      st.markdown("---")
+      res1, res2 = st.columns(2)
+      res1.metric("Forecasted IMDb Rating", f"⭐ {pred_rating:.2f} / 10")
+      res2.metric("Forecasted TMDB Popularity", f"🔥 {pred_pop:.2f}")
+
+# -----------------------------------------------------------------------------
+# TAB 7: SAVED HISTORY
+# -----------------------------------------------------------------------------
+with tab7:
+  st.subheader("💾 Audit & Activity History")
+
+  hist_tab1, hist_tab2 = st.tabs(
+      ["🎟️ Booking Transactions", "🔮 Prediction Records"]
+  )
+
+  with hist_tab1:
+    booking_df = backend.get_booking_history()
+    if not booking_df.empty:
+      st.dataframe(booking_df, use_container_width=True)
+    else:
+      st.info("No transaction history recorded yet.")
+
+  with hist_tab2:
+    history_df = backend.get_prediction_history()
+    if not history_df.empty:
+      st.dataframe(history_df, use_container_width=True)
+    else:
+      st.info("No saved predictions logged yet.")
