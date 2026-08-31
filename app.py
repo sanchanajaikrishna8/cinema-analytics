@@ -53,7 +53,7 @@ class AnalyticsBackend:
                     Title TEXT NOT NULL,
                     Genres TEXT NOT NULL,
                     Cast TEXT DEFAULT 'N/A',
-                    Cast_Photo TEXT DEFAULT 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80',
+                    Cast_Photo TEXT DEFAULT '',
                     Primary_Language TEXT DEFAULT 'Kannada',
                     Available_Languages TEXT DEFAULT 'Kannada, English, Hindi',
                     Theaters_Available TEXT DEFAULT 'N/A',
@@ -66,20 +66,6 @@ class AnalyticsBackend:
                     TMDB_Popularity REAL NOT NULL
                 )
             """)
-
-      # Schema Migration
-      cursor.execute("PRAGMA table_info(movies)")
-      existing_cols = [col[1] for col in cursor.fetchall()]
-      if "Cast_Photo" not in existing_cols:
-        cursor.execute(
-            "ALTER TABLE movies ADD COLUMN Cast_Photo TEXT DEFAULT"
-            " 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80'"
-        )
-      if "Trailer_URL" not in existing_cols:
-        cursor.execute(
-            "ALTER TABLE movies ADD COLUMN Trailer_URL TEXT DEFAULT"
-            " 'https://www.youtube.com'"
-        )
 
       # Bookings Database Table
       cursor.execute("""
@@ -325,7 +311,7 @@ st.markdown(
     }
     .image-card img {
         width: 100%;
-        height: 200px;
+        height: 380px;
         object-fit: cover;
     }
     .card-content { padding: 20px; color: #1E150C !important; }
@@ -336,7 +322,6 @@ st.markdown(
         font-size: 1.15rem;
     }
 
-    /* DARKENED PAYMENT SECTION TEXT STYLING */
     .payment-summary-box {
         background-color: #FFFFFF;
         border: 1px solid #D8C8B8;
@@ -457,7 +442,7 @@ if not st.session_state.authenticated:
 
 
 # -----------------------------------------------------------------------------
-# 5. DATA SYNTHESIS PIPELINE (ENGLISH, HINDI, KANNADA MOVIES)
+# 5. DATA SYNTHESIS PIPELINE WITH REAL MOVIE POSTERS
 # -----------------------------------------------------------------------------
 @st.cache_data
 def load_or_generate_dataset(samples=1200):
@@ -470,7 +455,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Rishab Shetty",
           "Trailer": "https://www.youtube.com/watch?v=8mrVmf239GU",
           "Img": (
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/8/84/Kantara_poster.jpeg"
           ),
       },
       {
@@ -480,7 +465,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Yash",
           "Trailer": "https://www.youtube.com/watch?v=JKa05nyUmuQ",
           "Img": (
-              "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/d/d0/K.G.F_Chapter_2.jpg"
           ),
       },
       {
@@ -490,7 +475,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Rakshit Shetty",
           "Trailer": "https://www.youtube.com/watch?v=RN9-Yl58c-8",
           "Img": (
-              "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/a/a3/777_Charlie_poster.jpg"
           ),
       },
       {
@@ -500,7 +485,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Kiccha Sudeep",
           "Trailer": "https://www.youtube.com/watch?v=Ypdu_Wc53s0",
           "Img": (
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/b/b8/Vikrant_Rona_poster.jpg"
           ),
       },
       # Hindi Movies
@@ -511,7 +496,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Shah Rukh Khan",
           "Trailer": "https://www.youtube.com/watch?v=COv52Qyctws",
           "Img": (
-              "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/3/39/Jawan_film_poster.jpg"
           ),
       },
       {
@@ -521,7 +506,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Rajkummar Rao, Shraddha Kapoor",
           "Trailer": "https://www.youtube.com/watch?v=KVnheXywIbU",
           "Img": (
-              "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/7/7f/Stree_2_poster.jpg"
           ),
       },
       {
@@ -531,7 +516,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Aamir Khan",
           "Trailer": "https://www.youtube.com/watch?v=x_7YlGv9u1g",
           "Img": (
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/9/99/Dangal_Poster.jpg"
           ),
       },
       {
@@ -541,7 +526,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Shah Rukh Khan, Deepika Padukone",
           "Trailer": "https://www.youtube.com/watch?v=vqu4z34wENw",
           "Img": (
-              "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/c/c3/Pathaan_film_poster.jpg"
           ),
       },
       # English Movies
@@ -552,7 +537,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Cillian Murphy",
           "Trailer": "https://www.youtube.com/watch?v=uYPbbksJxIg",
           "Img": (
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/4/4a/Oppenheimer_%28film%29.jpg"
           ),
       },
       {
@@ -562,7 +547,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Sam Worthington",
           "Trailer": "https://www.youtube.com/watch?v=d9MyW72ELq0",
           "Img": (
-              "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/5/54/Avatar_The_Way_of_Water_poster.jpg"
           ),
       },
       {
@@ -572,7 +557,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Leonardo DiCaprio",
           "Trailer": "https://www.youtube.com/watch?v=YoHD9XEInc0",
           "Img": (
-              "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg"
           ),
       },
       {
@@ -582,7 +567,7 @@ def load_or_generate_dataset(samples=1200):
           "Cast": "Matthew McConaughey",
           "Trailer": "https://www.youtube.com/watch?v=zSWdZVtXT7E",
           "Img": (
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&q=80"
+              "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg"
           ),
       },
   ]
@@ -754,7 +739,7 @@ st.markdown(
 tab_book, tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "🎟️ Book Movie Tickets",
     "🎯 Executive Insights",
-    "🔍 Search & Cast visual",
+    "🔍 Search & Movie Poster",
     "📊 Genre Analytics",
     "⏱️ Runtime Window",
     "📅 Release Timing",
@@ -834,8 +819,11 @@ with tab_book:
 
   b_col1, b_col2 = st.columns([1, 2])
   with b_col1:
-    default_img = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80"
-    cast_img_url = selected_movie_row.get("Cast_Photo", default_img)
+    default_img = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80"
+    movie_poster_url = selected_movie_row.get("Cast_Photo")
+    if not movie_poster_url or not isinstance(movie_poster_url, str):
+      movie_poster_url = default_img
+
     trailer_url = selected_movie_row.get(
         "Trailer_URL", "https://www.youtube.com"
     )
@@ -843,7 +831,7 @@ with tab_book:
     st.markdown(
         f"""
         <div class="image-card">
-            <img src="{cast_img_url}" alt="Cast & Movie Image">
+            <img src="{movie_poster_url}" alt="{selected_movie_row['Title']} Poster">
             <div class="card-content">
                 <h4>
                     {selected_movie_row['Title']} 
@@ -1044,10 +1032,10 @@ with tab1:
     )
 
 # -----------------------------------------------------------------------------
-# TAB 2: SEARCH & CAST VISUALS
+# TAB 2: SEARCH & DYNAMIC MOVIE POSTER
 # -----------------------------------------------------------------------------
 with tab2:
-  st.subheader("🔍 Movie Search & Cast Visual Card")
+  st.subheader("🔍 Movie Search & Dynamic Poster Display")
 
   col_search1, col_search2, col_search3 = st.columns([2, 1, 1])
   with col_search1:
@@ -1088,14 +1076,17 @@ with tab2:
     card_col1, card_col2 = st.columns([1, 2])
 
     with card_col1:
-      default_img = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80"
-      cast_img_url = movie_data.get("Cast_Photo", default_img)
+      default_img = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80"
+      movie_poster_url = movie_data.get("Cast_Photo")
+      if not movie_poster_url or not isinstance(movie_poster_url, str):
+        movie_poster_url = default_img
+
       t_url = movie_data.get("Trailer_URL", "https://www.youtube.com")
 
       st.markdown(
           f"""
             <div class="image-card">
-                <img src="{cast_img_url}" alt="Cast Photo">
+                <img src="{movie_poster_url}" alt="{movie_data['Title']} Poster">
                 <div class="card-content">
                     <h4>
                         {movie_data['Title']}
@@ -1120,7 +1111,7 @@ with tab2:
     st.warning("No movies found matching the search criteria.")
 
 # -----------------------------------------------------------------------------
-# TAB 3: GENRE ANALYTICS (FIXED COLOR SCALE ERROR)
+# TAB 3: GENRE ANALYTICS
 # -----------------------------------------------------------------------------
 with tab3:
   st.subheader("📊 Genre Performance & Volume Analysis")
