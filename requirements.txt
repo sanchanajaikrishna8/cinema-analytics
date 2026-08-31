@@ -1,5 +1,7 @@
+streamlit
 pandas
 numpy
 plotly
-streamlit
 scikit-learn
+qrcode
+reportlab
