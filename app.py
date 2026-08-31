@@ -1120,7 +1120,7 @@ with tab2:
     st.warning("No movies found matching the search criteria.")
 
 # -----------------------------------------------------------------------------
-# TAB 3: GENRE ANALYTICS
+# TAB 3: GENRE ANALYTICS (FIXED COLOR SCALE ERROR)
 # -----------------------------------------------------------------------------
 with tab3:
   st.subheader("📊 Genre Performance & Volume Analysis")
@@ -1147,7 +1147,7 @@ with tab3:
         orientation="h",
         title="Average IMDb Rating by Genre",
         color="Average_IMDb",
-        color_continuous_scale="copper",
+        color_continuous_scale="Cividis",
     )
     fig_g1.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
